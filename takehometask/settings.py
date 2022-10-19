@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # inform django that new application has been created
+    'currentweather',
 ]
 
 MIDDLEWARE = [
