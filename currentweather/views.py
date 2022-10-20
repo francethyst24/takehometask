@@ -1,26 +1,47 @@
 from django.shortcuts import render
-import urllib.request
 import json
+import requests
+import operator
 
 # Create your views here.
 
 
 def index(request):
-    if request.method == 'POST':
-
-        search = request.POST.get('search')
-
-        search_url = urllib.request.urlopen(
-            'https://api.openweathermap.org/data/2.5/weather?q='+search+'&APPID=c27c43c136cff28d8e78c4b47eb57282&units=metric').read()
-
-        convert = json.loads(search_url)
-        context = {
-            'city_name': str(convert['name']),
-            'temp': str(convert['main']['temp']) + ' degree Celsius',
-            'feels_like': str(convert['main']['feels_like']) + ' degree Celsius',
-            'humidity': str(convert['main']['humidity']) + ' percent',
-        }
-    else:
-        context = {}
-        search = ''
+    context = {
+        'cities_select': fetch_cities(request),
+        'weather': fetch_weather(request),
+    }
     return render(request, "currentweather/index.html", context)
+
+
+def fetch_cities(request):
+    api_call = requests.get(
+        'https://countriesnow.space/api/v0.1/countries/capital'
+    )
+    api_response = json.loads(api_call.content.decode())
+    countries_dict = sorted(
+        api_response.get('data'),
+        key=lambda d: d['capital'],
+    )
+    cities_dict = list()
+    for country in countries_dict:
+        if country['capital']:
+            cities_dict.append(country)
+    return cities_dict
+
+
+def fetch_weather(request):
+    query = request.GET.get('q')
+    if query:
+        api_call = requests.get(
+            "https://api.openweathermap.org/data/2.5/weather?q=" + query
+            + "&APPID=c27c43c136cff28d8e78c4b47eb57282&units=metric"
+        )
+        api_response = json.loads(api_call.content.decode())
+        weather_dict = {
+            'city_name': str(api_response['name']) + ", " + str(api_response['sys']['country']),
+            'temp': str(api_response['main']['temp']) + ' °C',
+            'feels_like': str(api_response['main']['feels_like']) + ' °C',
+            'humidity': str(api_response['main']['humidity']) + '%',
+        }
+        return weather_dict
