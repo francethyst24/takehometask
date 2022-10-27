@@ -34,7 +34,7 @@ def fetch_weather(request):
     query = request.GET.get('q')
     if query:
         api_call = requests.get(
-            "https://api.openweathermap.org/data/2.5/weather?q=" + query
+            "https://api.openweathermap.org/data/2.5/weather?q=" + query.strip()
             + "&APPID=c27c43c136cff28d8e78c4b47eb57282&units=metric"
         )
         api_response = json.loads(api_call.content.decode())
