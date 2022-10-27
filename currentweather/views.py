@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import json
 import requests
-import operator
+from django.conf import settings
 
 # Create your views here.
 
@@ -35,7 +35,7 @@ def fetch_weather(request):
     if query:
         api_call = requests.get(
             "https://api.openweathermap.org/data/2.5/weather?q=" + query.strip()
-            + "&APPID=c27c43c136cff28d8e78c4b47eb57282&units=metric"
+            + "&APPID=" + settings.WEATHER_API_KEY + "&units=metric"
         )
         api_response = json.loads(api_call.content.decode())
         weather_dict = {
